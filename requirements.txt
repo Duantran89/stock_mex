@@ -1,0 +1,13 @@
+streamlit
+pandas
+openpyxl
+streamlit-option-menu
+
+extra-streamlit-components
+
+
+
+supabase
+
+
+python-dotenv
