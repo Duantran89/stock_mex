@@ -4,9 +4,9 @@ from conectsupabase import *
 
 st.set_page_config(layout="wide")
 
-def insertsp():
+def insertsp(file_excel):
     cols = [0, 2, 4, 5, 6, 7]
-    data = pd.read_excel(rf"D:\OneDrive - Esquel Group\Warehouse\Data-WH (O)\1. Fabric WH\2. Ket qua Kiem ke hang ngay\Python mex\stock mex.xlsx", usecols=cols, skiprows=1)
+    data = pd.read_excel(file_excel, usecols=cols, skiprows=1)
     data = data.iloc[:-4]
     data.columns = ['Store_code', 'Item_code', 'Item_desc', 'LOCATOR', 'BARCODE', 'Qty']
     data['Qty'] = data['Qty'].astype(float)
@@ -44,12 +44,25 @@ def getsp(item_barcode, item_code):
     return df
 
 def main():
+
+
     st.markdown(
         '<h1 style="color:#1976d2; font-weight:bold;">KIEM TRA KHO MEX</h1>',
         unsafe_allow_html=True
     )
     #st.title("KIEM TRA KHO MEX")
     data = pd.DataFrame()
+
+    uploaded_file = st.file_uploader("Chọn file Excel mới để xem dữ liệu", type=["xls", "xlsx"])
+    if uploaded_file is not None:
+        #print(f"Uploaded file: {uploaded_file.name}")
+        # insertsp(uploaded_file.name)
+
+        try:
+            insertsp(uploaded_file)
+            st.success("Dữ liệu đã được chèn thành công!")
+        except Exception as e:
+            st.error(f"Lỗi khi chèn dữ liệu: {e}")
     
     # Custom CSS for text input color
     st.markdown(
@@ -74,15 +87,16 @@ def main():
     )
     # st.subheader("Scan Barcode and Item Code")
     # ...existing code...
-    
+    def trigger_get_data():
+        st.session_state['get_data'] = True
     # ...existing code...
     col1, col2, _ = st.columns([0.2, 0.2, 0.6])
     with col1:
         with st.container(border=True):
-            item_barcode = st.text_input("Barcode")
+            item_barcode = st.text_input("Barcode", key="barcode", on_change=trigger_get_data)
     with col2:
         with st.container(border=True):
-            item_code = st.text_input("Item Code")
+            item_code = st.text_input("Item Code", key="itemcode", on_change=trigger_get_data)
     st.markdown(
         """
         <style>
@@ -97,13 +111,15 @@ def main():
         unsafe_allow_html=True
     ) 
 
- 
-    if st.button("Get Data"):
-        data = getsp(item_barcode, item_code)
+    # Button for manual trigger
+    get_data_clicked = st.button("Get Data")
+    # Check if either button was clicked or Enter was pressed
+    if get_data_clicked or st.session_state.get('get_data', False):
+        data = getsp(st.session_state.get("barcode", ""), st.session_state.get("itemcode", ""))
+        st.session_state['get_data'] = False  # Reset flag
         if isinstance(data, str):
             st.error(data)
             return
-        #st.success("Data inserted successfully!")
 
     if not data.empty:
 
