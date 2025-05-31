@@ -122,27 +122,33 @@ def main():
             return
 
     if not data.empty:
-
-
         st.write("Ket qua:")
-        #st.dataframe(data, use_container_width=True)
-        # Add "Rolls" column: count unique BARCODE by Item_code
-        data['Rolls'] = data.groupby('Item_code')['BARCODE'].transform('nunique')
+
         # Extract year and month from BARCODE
         data['Year'] = data['BARCODE'].str[:4]
         data['Month'] = data['BARCODE'].str[4:6]
 
-        grouped_data = data.groupby(['Store_code', 'Item_desc', 'LOCATOR','Year', 'Month'], as_index=False).agg(
-            Rolls_Count=("BARCODE", 'nunique')
-        ).reset_index()
-        # Show the grouped data
-        # st.dataframe(grouped_data, use_container_width=True)
 
-        # Show the grouped data without the first two columns
+
+    # Then group by the higher level, summing Qty and counting rolls
+    # First, group by BARCODE to get unique rolls and their Qty
+    # Drop duplicates to ensure one Qty per BARCODE
+        roll_data = data.drop_duplicates(
+            subset=['Store_code', 'Item_desc', 'LOCATOR', 'Year', 'Month', 'BARCODE']
+        )
+
+        # Then, group by the higher level, summing Qty and counting rolls
+        grouped_data = roll_data.groupby(
+            ['Store_code', 'Item_desc', 'LOCATOR', 'Year', 'Month'],
+            as_index=False
+        ).agg(
+            Qty=('Qty', 'sum'),
+            Rolls_Count=('BARCODE', 'nunique')
+        )
+
         st.markdown(
             """
             <style>
-            /* Make Streamlit dataframe full width and increase font size */
             .stDataFrame div[data-testid="stVerticalBlock"] {
                 font-size: 20px !important;
             }
@@ -154,7 +160,7 @@ def main():
             """,
             unsafe_allow_html=True
         )
-        st.dataframe(grouped_data.iloc[:, 1:], use_container_width=True)
+        st.dataframe(grouped_data, use_container_width=True)
         
         return grouped_data
     
