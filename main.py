@@ -12,9 +12,13 @@ def insertsp(file_excel):
     data['Qty'] = data['Qty'].astype(float)
     data['Item_desc'] = data['Item_desc'].str[18:]
 
+    print(data.info())
+    print(data.head())
+    # Convert DataFrame to JSON format
     data_json = data.to_dict(orient='records')
-    insertData('stock_mex', data_json)
-
+    if insert_Data('stock_mex', data_json):
+        return True
+    
 def getsp(item_barcode, item_code):
     inp = item_barcode.strip()
     it = item_code.strip()
@@ -55,14 +59,15 @@ def main():
 
     uploaded_file = st.file_uploader("Chọn file Excel mới để xem dữ liệu", type=["xls", "xlsx"])
     if uploaded_file is not None:
-        #print(f"Uploaded file: {uploaded_file.name}")
-        # insertsp(uploaded_file.name)
-
-        try:
-            insertsp(uploaded_file)
-            st.success("Dữ liệu đã được chèn thành công!")
-        except Exception as e:
-            st.error(f"Lỗi khi chèn dữ liệu: {e}")
+        if st.button("Insert file"):
+            delete_Data('stock_mex', {})
+            try:
+                if insertsp(uploaded_file):
+                    st.success("Dữ liệu đã được chèn thành công!")
+                else:
+                    st.error("Lỗi khi chèn dữ liệu!")
+            except Exception as e:
+                st.error(f"Lỗi khi chèn dữ liệu: {e}")
     
     # Custom CSS for text input color
     st.markdown(

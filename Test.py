@@ -10,8 +10,11 @@ def insertsp():
     data['Qty'] = data['Qty'].astype(float)
     data['Item_desc'] = data['Item_desc'].str[18:]
 
+    print(data.info())
+    print(data.head())
     data_json = data.to_dict(orient='records')
-    insertData('stock_mex', data_json)
+    insert_Data('stock_mex', data_json)
+    return True
 
 def getsp(item_barcode, item_code):
     inp = item_barcode.strip()
@@ -54,7 +57,11 @@ def main():
         item_code = st.text_input("Item Code")
       
 
- 
+    if st.button("insert file"):
+        if insertsp():
+            st.success("Data inserted successfully!")
+        else:
+            st.error("Insert failed!")
     if st.button("Get Data"):
         data = getsp(item_barcode, item_code)
         st.success("Data inserted successfully!")
