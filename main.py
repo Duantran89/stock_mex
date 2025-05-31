@@ -9,11 +9,12 @@ def insertsp(file_excel):
     data = pd.read_excel(file_excel, usecols=cols, skiprows=1)
     data = data.iloc[:-4]
     data.columns = ['Store_code', 'Item_code', 'Item_desc', 'LOCATOR', 'BARCODE', 'Qty']
+    data['BARCODE'] = data['BARCODE'].astype(str)
     data['Qty'] = data['Qty'].astype(float)
     data['Item_desc'] = data['Item_desc'].str[18:]
 
-    print(data.info())
-    print(data.head())
+    #print(data.info())
+    #print(data.head())
     # Convert DataFrame to JSON format
     data_json = data.to_dict(orient='records')
     if insert_Data('stock_mex', data_json):
@@ -61,13 +62,12 @@ def main():
     if uploaded_file is not None:
         
         delete_Data('stock_mex', {})
-        try:
-            if insertsp(uploaded_file):
-                st.success("Dữ liệu đã được chèn thành công!")
-            else:
-                st.error("Lỗi khi chèn dữ liệu!")
-        except Exception as e:
-            st.error(f"Lỗi khi chèn dữ liệu: {e}")
+    
+        if insertsp(uploaded_file):
+            st.success("Dữ liệu đã được chèn thành công!")
+        else:
+            st.error("Lỗi khi chèn dữ liệu!")
+   
     
     # Custom CSS for text input color
     st.markdown(
