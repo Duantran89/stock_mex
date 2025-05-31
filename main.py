@@ -59,15 +59,15 @@ def main():
 
     uploaded_file = st.file_uploader("Chọn file Excel mới để xem dữ liệu", type=["xls", "xlsx"])
     if uploaded_file is not None:
-        if st.button("Insert file"):
-            delete_Data('stock_mex', {})
-            try:
-                if insertsp(uploaded_file):
-                    st.success("Dữ liệu đã được chèn thành công!")
-                else:
-                    st.error("Lỗi khi chèn dữ liệu!")
-            except Exception as e:
-                st.error(f"Lỗi khi chèn dữ liệu: {e}")
+        
+        delete_Data('stock_mex', {})
+        try:
+            if insertsp(uploaded_file):
+                st.success("Dữ liệu đã được chèn thành công!")
+            else:
+                st.error("Lỗi khi chèn dữ liệu!")
+        except Exception as e:
+            st.error(f"Lỗi khi chèn dữ liệu: {e}")
     
     # Custom CSS for text input color
     st.markdown(
